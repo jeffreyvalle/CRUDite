@@ -96,33 +96,46 @@ function updateLocalStorage(){
   localStorage.setItem('storageBin', JSON.stringify(storageBin));
 }
 
-function addHiddenItem(hiddenItem){
-  console.log(hiddenItem, ' item ')
-  $('.item-display').html(hiddenItem).children().addClass('item-border').css('opacity', 0.5);
+function addDisplayItem(view, html, key){
+  if(view === 'hidden'){
+    $('.item-display').append(html).children().addClass('item-border')
+    $(`.item-${key}`).css('opacity', 0.5);
+  } else {
+    $('.item-display').append(html).children().addClass('item-border');
+    $(`.item-${key}`).css('opacity', 1);
+  }
 }
 
 function displayLocalData(localData){
   var data = localData;
-  var display = ``;
-  var displayHidden = ``;
+  var display = [];
   for(var key in data){
     //console.log(data[key].title, ' data[key].title ', data[key].content, ' content')
     //need to only display value not entire object
     //we can set the div id to a value so we can use buttons on each div to alter
     //them individually
       if(data[key].view === 'hidden'){
-        console.log('hidden found');
-        displayHidden = `<div class='item-${key}'><div class='item-buttons'><button class='button-mark-complete' alt='${key}'>Mark Complete</button><button class='button-archive-item'>Archive Item</button></div><p>TITLE: ${data[key].title} CONTENT: ${data[key].content}</p></div><br>`;
-        addHiddenItem(displayHidden)
-        displayHidden = ``;
-      } else {
-        display = display + `<div class='item-${key}'><div class='item-buttons'><button class='button-mark-complete' alt='${key}'>Mark Complete</button><button class='button-archive-item'>Archive Item</button></div><p>TITLE: ${data[key].title} CONTENT: ${data[key].content}</p></div><br>`;
+        console.log(key, ' hidden call')
+        addDisplayItem('hidden', `<div class='item-${key}'><div class='item-buttons'><button class='button-mark-complete' alt='${key}'>Mark Complete</button><button class='button-archive-item'>Archive Item</button></div><p>TITLE: ${data[key].title} CONTENT: ${data[key].content}</p></div><br>`, key);
+        //display.push(['hidden', `<div class='item-${key}'><div class='item-buttons'><button class='button-mark-complete' alt='${key}'>Mark Complete</button><button class='button-archive-item'>Archive Item</button></div><p>TITLE: ${data[key].title} CONTENT: ${data[key].content}</p></div><br>`]);
+      } else if(data[key].view === 'unhidden') {
+        console.log(key, ' unhidden call')
+        addDisplayItem('unhidden', `<div class='item-${key}'><div class='item-buttons'><button class='button-mark-complete' alt='${key}'>Mark Complete</button><button class='button-archive-item'>Archive Item</button></div><p>TITLE: ${data[key].title} CONTENT: ${data[key].content}</p></div><br>`, key);
+        //display.push(['unhidden', `<div class='item-${key}'><div class='item-buttons'><button class='button-mark-complete' alt='${key}'>Mark Complete</button><button class='button-archive-item'>Archive Item</button></div><p>TITLE: ${data[key].title} CONTENT: ${data[key].content}</p></div><br>`]);
       }
-
-
   }
-  var itemDisplayHTML = //need to be able to save state and keep order on hidden items
-  $('.item-display').html(display).children().addClass('item-border');
+
+  //var itemDisplayHTML = ``;//need to be able to save state and keep order on hidden items
+  /*
+  for(var i = 0; i < display.length; i++){
+    if(display[i][0] === 'hidden'){
+      addDisplayItem('hidden', display[i][1]);
+    } else{
+      addDisplayItem('unhidden', display[i][1]);
+    }
+  }
+  */
+  //$('.item-display').html(display).children().addClass('item-border');
 
   //add listeners to each items buttons
   $( ".button-mark-complete" ).on('click', function(){
