@@ -17,14 +17,16 @@
   </head>
   <body>
     <div class="ui-container">
-
-          <input class="input-field-title" type="text" placeholder="Enter the Title">
-          <textarea class="input-field-body" placeholder="Enter the content"></textarea> <!-- maybe switch to <div id='fake_textarea' contenteditable></div>-->
-          <button class="store-btn">store data</button>
-          <button class="get-btn">get data</button>
-          <button class="delete-btn">delete data</button>
-
-    </div>
+      <button class="modal-open-btn">toDo List Options</button>
+          <div id='input-modal' class='modal'>
+            <div class='input-modal-content'>
+              <input class="input-field-title" type="text" placeholder="Enter the Title">
+              <input class="input-field-body" type="text" placeholder="Enter the Body">
+              <button class="store-btn">Add to List</button>
+              <button class="update-btn">Refresh List</button>
+              <button class="Create New List">Del</button>
+            </div>
+          </div>
     <div class="item-display">
 
     </div>

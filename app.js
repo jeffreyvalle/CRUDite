@@ -90,7 +90,8 @@ DataObj.prototype.editCategory = function(newCategory){
 }
 
 var storageBin = new Storage();
-storageBin.adopt();
+storageBin.adopt(); //gets data from browser if its there
+displayLocalData(storageBin); //displays data on page initially
 
 function updateLocalStorage(){
   localStorage.setItem('storageBin', JSON.stringify(storageBin));
@@ -98,83 +99,81 @@ function updateLocalStorage(){
 
 function addDisplayItem(view, html, key){
   if(view === 'hidden'){
-    $('.item-display').append(html).children().addClass('item-border')
-    $(`.item-${key}`).css('opacity', 0.5);
+      $('.item-display').append(html)
+      $(`.item-${key}`).addClass('item-border')
+      $(`.item-${key}`).css('opacity', 0.5);
+      $(`.item-${key}`).find('.button-mark-complete').html('Mark Incomplete');
+  } else if(view === 'archived-complete'){
+      $('.item-display').append(html)
+      $(`.item-${key}`).addClass('item-border')
+      $(`.item-${key}`).find('.button-archive-item').html('Activate');
+      $(`.item-${key}`).find('.button-mark-complete').html('Mark Incomplete');
+      $(`.item-${key}`).css('opacity', 0.15);
+      //$(`.item-${key}`).hide(); //reactivate when categories
+  } else if(view === 'archived-incomplete'){
+      $('.item-display').append(html)
+      $(`.item-${key}`).addClass('item-border')
+      $(`.item-${key}`).find('.button-archive-item').html('Activate');
+      //$(`.item-${key}`).hide(); //reactivate when categories
+      $(`.item-${key}`).css('opacity', 0.15);
   } else {
-    $('.item-display').append(html).children().addClass('item-border');
-    $(`.item-${key}`).css('opacity', 1);
+      $('.item-display').append(html)
+      $(`.item-${key}`).addClass('item-border')
+      $(`.item-${key}`).css('opacity', 1);
   }
 }
 
 function displayLocalData(localData){
   var data = localData;
-  var display = [];
   for(var key in data){
-    //console.log(data[key].title, ' data[key].title ', data[key].content, ' content')
-    //need to only display value not entire object
-    //we can set the div id to a value so we can use buttons on each div to alter
-    //them individually
-      if(data[key].view === 'hidden'){
-        console.log(key, ' hidden call')
-        addDisplayItem('hidden', `<div class='item-${key}'><div class='item-buttons'><button class='button-mark-complete' alt='${key}'>Mark Complete</button><button class='button-archive-item'>Archive Item</button></div><p>TITLE: ${data[key].title} CONTENT: ${data[key].content}</p></div><br>`, key);
-        //display.push(['hidden', `<div class='item-${key}'><div class='item-buttons'><button class='button-mark-complete' alt='${key}'>Mark Complete</button><button class='button-archive-item'>Archive Item</button></div><p>TITLE: ${data[key].title} CONTENT: ${data[key].content}</p></div><br>`]);
-      } else if(data[key].view === 'unhidden') {
-        console.log(key, ' unhidden call')
-        addDisplayItem('unhidden', `<div class='item-${key}'><div class='item-buttons'><button class='button-mark-complete' alt='${key}'>Mark Complete</button><button class='button-archive-item'>Archive Item</button></div><p>TITLE: ${data[key].title} CONTENT: ${data[key].content}</p></div><br>`, key);
-        //display.push(['unhidden', `<div class='item-${key}'><div class='item-buttons'><button class='button-mark-complete' alt='${key}'>Mark Complete</button><button class='button-archive-item'>Archive Item</button></div><p>TITLE: ${data[key].title} CONTENT: ${data[key].content}</p></div><br>`]);
-      }
-  }
-
-  //var itemDisplayHTML = ``;//need to be able to save state and keep order on hidden items
-  /*
-  for(var i = 0; i < display.length; i++){
-    if(display[i][0] === 'hidden'){
-      addDisplayItem('hidden', display[i][1]);
-    } else{
-      addDisplayItem('unhidden', display[i][1]);
+    if(data[key].view === 'hidden' && data[key].archived === true){
+      addDisplayItem('archived-complete', `<div class='item-${key}'><div class='item-buttons'><button class='button-mark-complete' alt='${key}'>Mark Complete</button><button class='button-archive-item' alt='${key}'>Archive Item</button></div><p>TITLE: ${data[key].title} CONTENT: ${data[key].content}</p></div><br>`, key);
+    } else if(data[key].view === 'unhidden' && data[key].archived === true) {
+      addDisplayItem('archived-incomplete', `<div class='item-${key}'><div class='item-buttons'><button class='button-mark-complete' alt='${key}'>Mark Complete</button><button class='button-archive-item' alt='${key}'>Archive Item</button></div><p>TITLE: ${data[key].title} CONTENT: ${data[key].content}</p></div><br>`, key);
+    } else if(data[key].view === 'hidden'){
+      addDisplayItem('hidden', `<div class='item-${key}'><div class='item-buttons'><button class='button-mark-complete' alt='${key}'>Mark Complete</button><button class='button-archive-item' alt='${key}'>Archive Item</button></div><p>TITLE: ${data[key].title} CONTENT: ${data[key].content}</p></div><br>`, key);
+    } else if(data[key].view === 'unhidden') {
+      addDisplayItem('unhidden', `<div class='item-${key}'><div class='item-buttons'><button class='button-mark-complete' alt='${key}'>Mark Complete</button><button class='button-archive-item' alt='${key}'>Archive Item</button></div><p>TITLE: ${data[key].title} CONTENT: ${data[key].content}</p></div><br>`, key);
     }
   }
-  */
-  //$('.item-display').html(display).children().addClass('item-border');
-
   //add listeners to each items buttons
   $( ".button-mark-complete" ).on('click', function(){
-    console.log(data[$(this).attr('alt')].view)
-    if(data[$(this).attr('alt')].view === 'unhidden'){
-      data[$(this).attr('alt')].view = 'hidden';
-    } else {
-      data[$(this).attr('alt')].view = 'unhidden';
-    };
-    console.log(data[$(this).attr('alt')].view)
-    //why cant use .toggleView here?
-    //console.log(data[$(this).attr('alt')].view, ' is hidden?');
-    if($(this).closest('.item-' + $(this).attr('alt')).css('opacity') === '1'){
-      $(this).closest('.item-' + $(this).attr('alt')).css('opacity', 0.5);
-    } else {
-      $(this).closest('.item-' + $(this).attr('alt')).css('opacity', 1);
-    }
     if($(this).html() === 'Mark Complete'){
       $(this).html('Mark Incomplete');
+      data[$(this).attr('alt')].view = 'hidden';
+      if(data[$(this).attr('alt')].archived === true){
+        $(this).closest('.item-' + $(this).attr('alt')).css('opacity', 0.15);
+      } else {
+        $(this).closest('.item-' + $(this).attr('alt')).css('opacity', 0.5);
+      }
     } else {
       $(this).html('Mark Complete');
+      data[$(this).attr('alt')].view = 'unhidden';
+      if(data[$(this).attr('alt')].archived === true){
+        $(this).closest('.item-' + $(this).attr('alt')).css('opacity', 0.15);
+      } else {
+        $(this).closest('.item-' + $(this).attr('alt')).css('opacity', 1);
+      }
     }
-    updateLocalStorage();
+    updateLocalStorage(); //makes sure our object in browser localStorage is up to date
   })
 
   $( ".button-archive-item" ).on('click', function(){
-    data[$(this).attr('alt')].archived = 'true';
     //why cant use .toggleView here?
-    //console.log(data[$(this).attr('alt')].view, ' is hidden?');
-    if($(this).closest('.item-' + $(this).attr('alt')).css('opacity') === '1'){
-      $(this).closest('.item-' + $(this).attr('alt')).css('opacity', 0.5);
+    if($(this).html() === 'Archive Item'){
+      $(this).html('Activate');
+      data[$(this).attr('alt')].archived = true;
+      $(this).closest('.item-' + $(this).attr('alt')).css('opacity', 0.15);
     } else {
-      $(this).closest('.item-' + $(this).attr('alt')).css('opacity', 1);
+      $(this).html('Archive Item');
+      data[$(this).attr('alt')].archived = false;
+      if(data[$(this).attr('alt')].view === 'hidden'){
+        $(this).closest('.item-' + $(this).attr('alt')).css('opacity', 0.5);
+      } else {
+        $(this).closest('.item-' + $(this).attr('alt')).css('opacity', 1);
+      }
     }
-    if($(this).html() === 'Mark Complete'){
-      $(this).html('Mark Incomplete');
-    } else {
-      $(this).html('Mark Complete');
-    }
+    updateLocalStorage();
   })
 }
 
@@ -188,7 +187,7 @@ function displayLocalData(localData){
 
   });
 
-  $('.get-btn').on('click', function(event){
+  $('.update-btn').on('click', function(event){
     //console.log(localStorage.getItem('hrext'));
     let titleValue = localStorage.getItem('titleValue');
     let contentValue = localStorage.getItem('contentValue');
@@ -207,6 +206,8 @@ function displayLocalData(localData){
     $('.debug').html(`<p>Items deleted</p>`);
   });
 
+var inputModal = document.getElementById('input-modal')
+var displayModalButton = document.getElementById('modal-open-btn')
 
 
 });
